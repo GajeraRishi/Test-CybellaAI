@@ -67,7 +67,7 @@ If this is your first time setting up Git:
 
 ```bash
 git init
-git remote add origin https://github.com/GajeraRishi/CybellaAI.git
+git remote add origin https://github.com/GajeraRishi/AICybella.git
 git add .
 git commit -m "initial commit"
 git branch -M main
