@@ -16,7 +16,7 @@ CybellaAI is a responsive, web-based therapy assistant that leverages facial emo
 
 ## 🚀 Live Demo
 
-🔗 [GitHub Pages Deployment](https://Gajerarishi.github.io/AICybella)
+🔗 [GitHub Pages Deployment](https://Gajerarishi.github.io/Pro-CybellaAI)
 
 ---
 
@@ -33,8 +33,8 @@ CybellaAI is a responsive, web-based therapy assistant that leverages facial emo
 Make sure you have **Node.js (v18+)** and **npm** installed.
 
 ```bash
-git clone https://github.com/GajeraRishi/AICybella.git
-cd AICybella
+git clone https://github.com/GajeraRishi/Pro-CybellaAI.git
+cd Pro-CybellaAI
 npm install
 npm run dev
 ```
