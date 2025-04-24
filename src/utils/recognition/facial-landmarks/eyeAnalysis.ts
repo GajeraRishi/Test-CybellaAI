@@ -1,4 +1,3 @@
-
 import * as faceapi from 'face-api.js';
 
 export interface EyeFeatures {
@@ -10,7 +9,7 @@ export interface EyeFeatures {
 }
 
 /**
- * Analyzes eye-related facial features
+ * Analyzes eye-related facial features with enhanced sensitivity for fearful detection
  */
 export function eyeAnalysis(
   positions: faceapi.Point[], 
@@ -18,13 +17,15 @@ export function eyeAnalysis(
 ): EyeFeatures {
   const faceHeight = faceBox.height;
   
-  // Eye openness for surprise/fear
+  // Eye openness for surprise/fear with amplification
   const leftEyeTop = positions[43].y;
   const leftEyeBottom = positions[47].y;
   const rightEyeTop = positions[37].y;
   const rightEyeBottom = positions[41].y;
-  const leftEyeOpenness = (leftEyeBottom - leftEyeTop) / faceHeight;
-  const rightEyeOpenness = (rightEyeBottom - rightEyeTop) / faceHeight;
+  
+  // Multiply by 1.2 to increase sensitivity for fearful detection
+  const leftEyeOpenness = ((leftEyeBottom - leftEyeTop) / faceHeight) * 1.15;
+  const rightEyeOpenness = ((rightEyeBottom - rightEyeTop) / faceHeight) * 1.15;
   const eyeOpenness = (leftEyeOpenness + rightEyeOpenness) / 2;
   
   // Eye darting calculation for anxiety detection

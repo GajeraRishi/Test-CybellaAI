@@ -41,13 +41,13 @@ const FacialRecognitionCard: React.FC<FacialRecognitionCardProps> = ({
   return (
     <Card className="overflow-hidden relative">
       <div className="aspect-video bg-muted relative overflow-hidden rounded-md">
-        {highAccuracyMode && isActive && permission && (
+        {/* {highAccuracyMode && isActive && permission && (
           <div className="absolute top-2 right-2 z-10">
             <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
               High Accuracy Mode
             </Badge>
           </div>
-        )}
+        )} */}
         <FacialRecognitionStatus 
           error={error}
           isActive={isActive}

@@ -30,11 +30,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
       <div className="container flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/b3baaed6-ee0e-483f-99a5-d03794167be1.png" 
-              alt="Cybella Logo" 
-              className="h-12 w-auto" 
-            />
+          <img src={`${import.meta.env.BASE_URL}image/logo.png`} alt="Cybella Logo" className="h-12 w-auto" />
           </div>
           <h1 className="text-xl font-semibold text-primary">Cybella</h1>
         </div>

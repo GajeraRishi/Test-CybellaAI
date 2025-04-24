@@ -49,14 +49,14 @@ export function analyzeAdvancedEmotions(
     }
     
     // Standard anxiety detection (uncovered face) with lowered thresholds
-    if ((eyeFeatures.eyeOpenness > 0.15 && eyebrowFeatures.browPositionRatio < 0) ||
+    if ((eyeFeatures.eyeOpenness > 0.13 && eyebrowFeatures.browPositionRatio < 0) ||
         // Check for anxious eyes with potentially small mouth visibility
-        (eyeFeatures.eyeOpenness > 0.15 && mouthFeatures.mouthArea < 0.015)) {
+        (eyeFeatures.eyeOpenness > 0.13 && mouthFeatures.mouthArea < 0.015)) {
       emotion = 'anxious';
       adjustedScore *= 1.8; // Higher boost for anxiety detection
     } 
     // Specific markers for stress (moderate eyes, tense mouth, neutral/lowered brows)
-    else if (eyeFeatures.eyeOpenness > 0.15 && eyeFeatures.eyeOpenness < 0.3 && 
+    else if (eyeFeatures.eyeOpenness > 0.13 && eyeFeatures.eyeOpenness < 0.28 && 
              mouthFeatures.mouthHeight < 0.02 && eyebrowFeatures.browPositionRatio > -0.03) {
       emotion = 'stressed';
       adjustedScore *= 1.3; // Higher boost for stress detection

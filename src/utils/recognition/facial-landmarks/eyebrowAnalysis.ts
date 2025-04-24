@@ -18,8 +18,8 @@ export function eyebrowAnalysis(
   const faceHeight = faceBox.height;
   
   // Eyebrows position for anger/surprise detection
-  const leftBrowPos = positions[22].y - positions[27].y;
-  const rightBrowPos = positions[17].y - positions[27].y;
+  const leftBrowPos = (positions[22].y - positions[27].y) * 1.15;
+  const rightBrowPos = (positions[17].y - positions[27].y) * 1.15;
   const browPositionRatio = ((leftBrowPos + rightBrowPos) / 2) / faceHeight;
   
   // Eyebrow slant for sadness

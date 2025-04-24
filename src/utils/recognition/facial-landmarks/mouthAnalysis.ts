@@ -27,7 +27,7 @@ export function mouthAnalysis(
   // Mouth shape analysis
   const upperLipY = positions[62].y;
   const lowerLipY = positions[66].y;
-  const lipDistance = lowerLipY - upperLipY;
+  const lipDistance = (lowerLipY - upperLipY) * 1.15;
   const faceHeight = faceBox.height;
   const mouthOpenRatio = lipDistance / faceHeight;
   
