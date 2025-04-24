@@ -22,7 +22,7 @@ const App = () => (
         <ToastProvider />
         <SonnerToaster />
         <ConnectivityWarning />
-        <BrowserRouter basename="/AI-Cybella/">
+        <BrowserRouter basename="/AICybella/">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/face" element={<Index />} />
