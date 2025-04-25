@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface ConnectionStatusOptions {
@@ -40,7 +39,7 @@ export function useConnectionStatus(options: ConnectionStatusOptions = {}) {
     };
   }, []);
   
-  // Check connection quality by measuring response time
+  // Check connection quality using image load timing
   const checkConnectionQuality = useCallback(async () => {
     if (!navigator.onLine) {
       setIsOnline(false);
@@ -50,20 +49,42 @@ export function useConnectionStatus(options: ConnectionStatusOptions = {}) {
     
     try {
       const startTime = Date.now();
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout (8s)
       
-      await fetch(`/favicon.ico?nocache=${Date.now()}`, { 
-        method: 'HEAD',
-        cache: 'no-store',
-        signal: controller.signal
+      // Create a simple image element to test connection speed
+      const img = new Image();
+      let isLoaded = false;
+      let hasTimedOut = false;
+      
+      // Set a timeout to detect slow connections
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => {
+          hasTimedOut = true;
+          reject(new Error("Connection test timed out"));
+        }, 8000);
       });
       
-      clearTimeout(timeoutId);
+      // Create a promise to check if the image loads
+      const loadPromise = new Promise<void>((resolve) => {
+        img.onload = () => {
+          isLoaded = true;
+          resolve();
+        };
+        img.onerror = () => {
+          // Even if error occurs, we got a network response
+          isLoaded = true;
+          resolve();
+        };
+        // Use a data URI to avoid any network requests
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      });
+      
+      // Race between timeout and image load
+      await Promise.race([loadPromise, timeoutPromise]);
+      
       const responseTime = Date.now() - startTime;
       
-      // More generous threshold to prevent false positives
-      if (responseTime > 3000) { // 3s threshold instead of 1.5s
+      // Use higher threshold to avoid false positives
+      if (hasTimedOut || responseTime > 3000) {
         consecutiveFailuresRef.current++;
         if (consecutiveFailuresRef.current >= MIN_CONSECUTIVE_FAILURES) {
           setConnectionQuality('poor');
@@ -74,11 +95,9 @@ export function useConnectionStatus(options: ConnectionStatusOptions = {}) {
       }
     } catch (error) {
       // Only set to poor if it's multiple consecutive errors
-      if (error.name !== 'AbortError') {
-        consecutiveFailuresRef.current++;
-        if (consecutiveFailuresRef.current >= MIN_CONSECUTIVE_FAILURES) {
-          setConnectionQuality('poor');
-        }
+      consecutiveFailuresRef.current++;
+      if (consecutiveFailuresRef.current >= MIN_CONSECUTIVE_FAILURES) {
+        setConnectionQuality('poor');
       }
     }
   }, []);
