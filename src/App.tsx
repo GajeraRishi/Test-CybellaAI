@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserPreferencesProvider } from "@/contexts/UserPreferencesContext";
 import ConnectivityWarning from "@/components/ConnectivityWarning";
 import Index from "./pages/Index";
+import About from "./pages/About";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 // Create a client for React Query
@@ -25,6 +27,8 @@ const App = () => (
         <BrowserRouter basename="/Test-CybellaAI/">
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/about" element={<About />} />
             <Route path="/face" element={<Index />} />
             <Route path="/emotions" element={<Index />} />
             <Route path="*" element={<NotFound />} />

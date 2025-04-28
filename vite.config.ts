@@ -7,6 +7,9 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   // base:"/",
   base:"/Test-CybellaAI/",
+  build:{
+    outDir: "dist",
+  },
   server: {
     host: "::",
     port: 8080,

@@ -1,248 +1,106 @@
 
-// import React, { useState, useEffect } from 'react';
-// import Header from '@/components/Header';
-// import Footer from '@/components/Footer';
-// import VoiceInterface from '@/components/VoiceInterface';
-// import FacialRecognition from '@/components/FacialRecognition';
-// import EmotionDisplay, { Emotion } from '@/components/EmotionDisplay';
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-// import { useIsMobile } from '@/hooks/use-mobile';
-// import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-// import { toast } from '@/hooks/use-toast';
-
-// /**
-//  * Main index page component - cleansed of multi-language and detection visuals
-//  */
-// const Index = () => {
-//   const [sessionActive, setSessionActive] = useState<boolean>(false);
-//   const [faceEmotion, setFaceEmotion] = useState<Emotion | null>(null);
-//   const [voiceEmotion, setVoiceEmotion] = useState<Emotion | null>(null);
-//   const [hasNetworkIssue, setHasNetworkIssue] = useState<boolean>(false);
-//   const [sessionCount, setSessionCount] = useState<number>(0); // Track session count for resets
-//   const isMobile = useIsMobile();
-//   const { isOnline, connectionQuality } = useNetworkStatus();
-
-//   // Update network issue state
-//   useEffect(() => {
-//     setHasNetworkIssue(!isOnline || connectionQuality === 'poor');
-//   }, [isOnline, connectionQuality]);
-
-//   // Handle emotions
-//   const handleFaceEmotionDetected = (emotion: Emotion) => {
-//     setFaceEmotion(emotion);
-//   };
-
-//   const handleVoiceEmotionDetected = (emotion: Emotion) => {
-//     setVoiceEmotion(emotion);
-//   };
-
-//   const handleSessionStart = () => {
-//     if (!isOnline) {
-//       toast({
-//         title: "Cannot Start Session",
-//         description: "Please check your internet connection and try again.",
-//         variant: "destructive",
-//       });
-//       return;
-//     }
-//     if (connectionQuality === 'poor') {
-//       toast({
-//         title: "Network Quality Warning",
-//         description: "Your connection quality may affect the application performance.",
-//         variant: "warning",
-//       });
-//     }
-//     setSessionActive(true);
-//     setSessionCount(prevCount => prevCount + 1); // Increment session counter for clean restart
-//     toast({
-//       title: "Session Started",
-//       description: "Both voice and facial recognition are now active.",
-//     });
-//   };
-
-//   const handleSessionEnd = () => {
-//     setSessionActive(false);
-//     setFaceEmotion(null);
-//     setVoiceEmotion(null);
-//     toast({
-//       title: "Session Ended",
-//       description: "Voice and facial recognition have been stopped.",
-//     });
-//   };
-
-//   useEffect(() => {
-//     if (!isOnline && sessionActive) {
-//       toast({
-//         title: "Network Connection Lost",
-//         description: "Please check your internet connection. Some features may be limited.",
-//         variant: "destructive",
-//       });
-//     }
-//   }, [isOnline, sessionActive]);
-
-//   return (
-//     <div className="min-h-screen flex flex-col bg-gradient-soothing">
-//       <Header />
-//       <main className="flex-1 container py-4 px-3 mx-auto">
-//         <div className="space-y-4 max-w-[1200px] mx-auto">
-//           <Card className="border-none shadow-sm bg-white/80 dark:bg-gray-900/80 backdrop-blur">
-//             <CardHeader className="p-4">
-//               <CardTitle className="text-xl md:text-2xl">Cybella AI</CardTitle>
-//               <CardDescription>
-//                 AI-powered voice therapy for relaxation and emotional support. Speak naturally with Cybella, designed to help you relax and process your emotions.
-//               </CardDescription>
-//             </CardHeader>
-//           </Card>
-//           <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
-//             <VoiceInterface
-//               onVoiceEmotionDetected={handleVoiceEmotionDetected}
-//               onSessionStart={handleSessionStart}
-//               onSessionEnd={handleSessionEnd}
-//               isOnline={isOnline}
-//               sessionActive={sessionActive}
-//               key={`voice-${sessionCount}`} // Force component recreation on session change
-//             />
-//             <FacialRecognition
-//               onEmotionDetected={handleFaceEmotionDetected}
-//               isActive={sessionActive}
-//               connectionIssue={hasNetworkIssue}
-//               key={`face-${sessionCount}`} // Force component recreation on session change
-//             />
-//           </div>
-//           <EmotionDisplay
-//             faceEmotion={faceEmotion}
-//             voiceEmotion={voiceEmotion}
-//           />
-//         </div>
-//       </main>
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default Index;
-
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import VoiceInterface from '@/components/VoiceInterface';
-import FacialRecognition from '@/components/FacialRecognition';
-import EmotionDisplay, { Emotion } from '@/components/EmotionDisplay';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { MessageSquare, Video, Heart } from 'lucide-react';
 
-/**
- * Main index page component - cleansed of multi-language and detection visuals
- */
 const Index = () => {
-  const [sessionActive, setSessionActive] = useState<boolean>(false);
-  const [faceEmotion, setFaceEmotion] = useState<Emotion | null>(null);
-  const [voiceEmotion, setVoiceEmotion] = useState<Emotion | null>(null);
-  const [hasNetworkIssue, setHasNetworkIssue] = useState<boolean>(false);
-  const [sessionCount, setSessionCount] = useState<number>(0); // Track session count for resets
-  const isMobile = useIsMobile();
-  const { isOnline, connectionQuality } = useNetworkStatus();
-
-  // Update network issue state
-  useEffect(() => {
-    setHasNetworkIssue(!isOnline || connectionQuality === 'poor');
-  }, [isOnline, connectionQuality]);
-
-  // Handle emotions
-  const handleFaceEmotionDetected = (emotion: Emotion) => {
-    setFaceEmotion(emotion);
-  };
-
-  const handleVoiceEmotionDetected = (emotion: Emotion) => {
-    setVoiceEmotion(emotion);
-  };
-
-  // More reliable session handling with useCallback
-  const handleSessionStart = useCallback(() => {
-    if (!isOnline) {
-      toast({
-        title: "Cannot Start Session",
-        description: "Please check your internet connection and try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (connectionQuality === 'poor') {
-      toast({
-        title: "Network Quality Warning",
-        description: "Your connection quality may affect the application performance.",
-        variant: "warning",
-      });
-    }
-    
-    setSessionActive(true);
-    setSessionCount(prevCount => prevCount + 1); // Increment session counter for clean restart
-  }, [isOnline, connectionQuality]);
-
-  const handleSessionEnd = useCallback(() => {
-    setSessionActive(false);
-    setFaceEmotion(null);
-    setVoiceEmotion(null);
-  }, []);
-
-  // Toggle session function for direct control from the Index page
-  const toggleSession = useCallback(() => {
-    if (sessionActive) {
-      handleSessionEnd();
-    } else {
-      handleSessionStart();
-    }
-  }, [sessionActive, handleSessionStart, handleSessionEnd]);
-
-  useEffect(() => {
-    if (!isOnline && sessionActive) {
-      toast({
-        title: "Network Connection Lost",
-        description: "Please check your internet connection. Some features may be limited.",
-        variant: "destructive",
-      });
-    }
-  }, [isOnline, sessionActive]);
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-soothing">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#1E90FF] to-[#87CEEB]">
       <Header />
-      <main className="flex-1 container py-4 px-3 mx-auto">
-        <div className="space-y-4 max-w-[1200px] mx-auto">
-          <Card className="border-none shadow-sm bg-white/80 dark:bg-gray-900/80 backdrop-blur">
-            <CardHeader className="p-4">
-              <CardTitle className="text-xl md:text-2xl">Cybella AI</CardTitle>
-              <CardDescription>
-                AI-powered voice therapy for relaxation and emotional support. Speak naturally with Cybella, designed to help you relax and process your emotions.
-              </CardDescription>
-            </CardHeader>
+      
+      {/* Hero Section */}
+      <section className="relative flex flex-col items-center justify-center min-h-[60vh] px-4 py-20">
+        <div className="container max-w-[1200px] mx-auto text-center space-y-8">
+          <h1 className="text-4xl md:text-6xl font-bold text-white">
+            Your AI Therapy Companion
+          </h1>
+          <p className="text-xl md:text-2xl max-w-[800px] mx-auto text-white opacity-90">
+            Experience emotional support through AI-powered voice therapy and facial recognition
+          </p>
+          <Button 
+            size="lg" 
+            className="mt-8 text-lg px-8 py-6 rounded-full bg-white text-[#1E90FF] hover:bg-white/90 animate-fade-in"
+            onClick={() => navigate('/chat')}
+          >
+            <MessageSquare className="mr-2" />
+            Start Conversation
+          </Button>
+        </div>
+      </section>
+
+      <main className="flex-1 container py-16 px-4 mx-auto">
+        <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6 space-y-4">
+              <MessageSquare className="w-12 h-12 text-white" />
+              <h3 className="text-xl font-semibold">Voice Interaction</h3>
+              <p className="text-white/90">
+                Natural conversation with AI that understands and responds to your emotional state.
+              </p>
+            </CardContent>
           </Card>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
-            <VoiceInterface
-              onVoiceEmotionDetected={handleVoiceEmotionDetected}
-              onSessionStart={toggleSession}
-              onSessionEnd={handleSessionEnd}
-              isOnline={isOnline}
-              sessionActive={sessionActive}
-              key={`voice-${sessionCount}`} // Force component recreation on session change
-            />
-            <FacialRecognition
-              onEmotionDetected={handleFaceEmotionDetected}
-              isActive={sessionActive}
-              connectionIssue={hasNetworkIssue}
-              key={`face-${sessionCount}`} // Force component recreation on session change
-            />
+          
+          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6 space-y-4">
+              <Video className="w-12 h-12 text-white" />
+              <h3 className="text-xl font-semibold">Emotion Recognition</h3>
+              <p className="text-white/90">
+                Real-time facial expression analysis to better understand your emotional journey.
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/20 backdrop-blur-sm border-white/30 text-white hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6 space-y-4">
+              <Heart className="w-12 h-12 text-white" />
+              <h3 className="text-xl font-semibold">24/7 Support</h3>
+              <p className="text-white/90">
+                Access emotional support anytime, anywhere with our AI companion.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* FAQ Section */}
+        <div className="mt-24 text-center text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-12">Frequently asked questions</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1200px] mx-auto">
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm text-white">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-3">Is Cybella safe to use?</h3>
+                <p className="text-white/80">
+                  Yes, we prioritize your privacy and security. All conversations are private and encrypted.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm text-white">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-3">How does it work?</h3>
+                <p className="text-white/80">
+                  Cybella uses advanced AI to understand your emotions and provide meaningful support.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="bg-white/10 border-white/20 backdrop-blur-sm text-white">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-3">What can Cybella help with?</h3>
+                <p className="text-white/80">
+                  From daily conversations to emotional support, Cybella is your AI companion.
+                </p>
+              </CardContent>
+            </Card>
           </div>
-          <EmotionDisplay
-            faceEmotion={faceEmotion}
-            voiceEmotion={voiceEmotion}
-          />
         </div>
       </main>
+      
       <Footer />
     </div>
   );
