@@ -6,7 +6,7 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   // base:"/",
-  base:"/Pro-CybellaAI/",
+  base:"/Test-CybellaAI/",
   server: {
     host: "::",
     port: 8080,
