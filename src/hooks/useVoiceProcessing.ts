@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Emotion } from '@/components/EmotionDisplay';
 import { useAIResponse } from '@/hooks/useAIResponse';
@@ -50,7 +49,12 @@ export function useVoiceProcessing({
   return {
     isListening: speechRecognition.isListening,
     transcription,
+    setTranscription,
     interimTranscript: speechRecognition.interimTranscript,
+    setInterimTranscript: (transcript: string) => {
+      // This is a pass-through function since interimTranscript is managed by speechRecognition
+      // But we need to expose it for the component
+    },
     aiResponse,
     shouldPlayVoice,
     audioData,
@@ -58,6 +62,8 @@ export function useVoiceProcessing({
     sessionActive,
     speechRecognitionSupported: speechRecognition.speechRecognitionSupported,
     toggleListening: speechRecognition.toggleListening,
+    startListening: speechRecognition.startListening,
+    stopListening: speechRecognition.stopListening,
     setAiResponse,
     setShouldPlayVoice
   };

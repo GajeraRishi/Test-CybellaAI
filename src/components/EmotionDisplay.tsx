@@ -46,55 +46,49 @@ const EmotionDisplay: React.FC<EmotionDisplayProps> = ({
   faceEmotion, 
   voiceEmotion,
   confidence = { face: 0, voice: 0 }
-}) => {
-  if (!faceEmotion && !voiceEmotion) return null;
-  
+}) => {  
   return (
     <Card className="p-4 md:p-6 shadow-sm bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm">
       <h3 className="text-lg font-medium mb-3">Current Emotional State</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {faceEmotion && (
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-white/80 to-gray-100/80 dark:from-gray-700/80 dark:to-gray-800/80">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${emotionColors[faceEmotion] || 'bg-gray-200'}`}>
-              <span className="text-xl" role="img" aria-label={faceEmotion}>
-                {emotionEmojis[faceEmotion] || '🙂'}
-              </span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Facial Expression</p>
-              <div className="flex justify-between items-center">
-                <span className="capitalize text-sm">{faceEmotion}</span>
-                {confidence.face !== undefined && (
-                  <span className="text-xs text-muted-foreground">
-                    {Math.round(confidence.face * 100)}%
-                  </span>
-                )}
-              </div>
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-white/80 to-gray-100/80 dark:from-gray-700/80 dark:to-gray-800/80">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${faceEmotion && emotionColors[faceEmotion] || 'bg-gray-200'}`}>
+            <span className="text-xl" role="img" aria-label={faceEmotion || 'unknown'}>
+              {faceEmotion ? emotionEmojis[faceEmotion] : '❓'}
+            </span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Facial Expression</p>
+            <div className="flex justify-between items-center">
+              <span className="capitalize text-sm">{faceEmotion || 'Processing...'}</span>
+              {confidence.face !== undefined && faceEmotion && (
+                <span className="text-xs text-muted-foreground">
+                  {Math.round(confidence.face * 100)}%
+                </span>
+              )}
             </div>
           </div>
-        )}
+        </div>
         
-        {voiceEmotion && (
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-white/80 to-gray-100/80 dark:from-gray-700/80 dark:to-gray-800/80">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${emotionColors[voiceEmotion] || 'bg-gray-200'}`}>
-              <span className="text-xl" role="img" aria-label={voiceEmotion}>
-                {emotionEmojis[voiceEmotion] || '🙂'}
-              </span>
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">Voice Tone</p>
-              <div className="flex justify-between items-center">
-                <span className="capitalize text-sm">{voiceEmotion}</span>
-                {confidence.voice !== undefined && (
-                  <span className="text-xs text-muted-foreground">
-                    {Math.round(confidence.voice * 100)}%
-                  </span>
-                )}
-              </div>
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-br from-white/80 to-gray-100/80 dark:from-gray-700/80 dark:to-gray-800/80">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${voiceEmotion && emotionColors[voiceEmotion] || 'bg-gray-200'}`}>
+            <span className="text-xl" role="img" aria-label={voiceEmotion || 'unknown'}>
+              {voiceEmotion ? emotionEmojis[voiceEmotion] : '❓'}
+            </span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Voice Tone</p>
+            <div className="flex justify-between items-center">
+              <span className="capitalize text-sm">{voiceEmotion || 'Speak to detect'}</span>
+              {confidence.voice !== undefined && voiceEmotion && (
+                <span className="text-xs text-muted-foreground">
+                  {Math.round(confidence.voice * 100)}%
+                </span>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     </Card>
   );

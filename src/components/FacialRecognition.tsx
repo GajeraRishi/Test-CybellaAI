@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from 'react';
 import FacialRecognitionCard from './facial-recognition/FacialRecognitionCard';
 import { useFacialRecognition } from '@/hooks/useFacialRecognition';
@@ -8,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Emotion } from '@/components/EmotionDisplay';
 
-// Props: no detection visuals, no confidence
 interface FacialRecognitionProps {
   onEmotionDetected?: (emotion: Emotion) => void;
   isActive: boolean;
@@ -23,7 +21,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { stableEmotion, setEmotionData } = useEmotion();
-  const [cameraRequested, setCameraRequested] = useState(false); // camera only starts on session
+  const [cameraRequested, setCameraRequested] = useState(false);
   const { toast } = useToast();
   const [highAccuracyMode, setHighAccuracyMode] = useState(true);
   const toastShownRef = useRef(false);
@@ -32,7 +30,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
   const isMobile = useIsMobile();
   const sessionIdRef = useRef<string>("");
 
-  // Generate a new session ID when starting
+  // Generate new session ID when session state changes
   useEffect(() => {
     if (isActive && !lastActiveStateRef.current) {
       sessionIdRef.current = `session-${Date.now()}`;
@@ -41,7 +39,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
     lastActiveStateRef.current = isActive;
   }, [isActive]);
 
-  // Preload models (but don't request camera yet)
+  // Load facial detection models
   useEffect(() => {
     if (modelsLoadingRef.current) return;
     modelsLoadingRef.current = true;
@@ -66,15 +64,17 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
       });
   }, [toast, isMobile]);
 
-  // Set emotion ONLY, no confidence
+  // Handle detected emotions and pass to parent component
   const handleEmotionDetected = (emotion: Emotion) => {
-    setEmotionData(emotion, 0);
-    if (onEmotionDetected) {
-      onEmotionDetected(emotion);
+    if (isActive) {
+      setEmotionData(emotion, 0);
+      if (onEmotionDetected) {
+        onEmotionDetected(emotion);
+      }
     }
   };
 
-  // Use custom hook (disable detection visuals, confidence, etc.)
+  // Use the facial recognition hook
   const { permission, error, modelsLoaded, connectionIssue: detectedConnectionIssue, requestCameraAccess } = useFacialRecognition({
     videoRef,
     canvasRef,
@@ -84,14 +84,17 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
     sessionId: sessionIdRef.current
   });
 
+  // Request camera access handler
   const handleRequestCameraAccess = () => {
-    setCameraRequested(true);
-    requestCameraAccess();
+    if (isActive) {
+      setCameraRequested(true);
+      requestCameraAccess();
+    }
   };
 
   const hasConnectionIssue = connectionIssue || detectedConnectionIssue;
 
-  // Camera sync with session only
+  // Auto request camera when session becomes active
   useEffect(() => {
     if (isActive && !permission && !cameraRequested) {
       setCameraRequested(true);
@@ -101,13 +104,15 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
     }
   }, [isActive, permission, cameraRequested, requestCameraAccess]);
 
-  // Reset camera when session ends
+  // Reset camera state when session ends
   useEffect(() => {
     if (!isActive && lastActiveStateRef.current) {
       setCameraRequested(false);
+      // Clear any stored emotion data when session ends
+      setEmotionData(null, 0);
     }
     lastActiveStateRef.current = isActive;
-  }, [isActive]);
+  }, [isActive, setEmotionData]);
 
   return (
     <FacialRecognitionCard
@@ -118,7 +123,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
       modelsLoaded={modelsLoaded}
       connectionIssue={hasConnectionIssue}
       isActive={isActive}
-      emotion={stableEmotion}
+      emotion={isActive ? stableEmotion : null}
       requestCameraAccess={handleRequestCameraAccess}
       cameraRequested={cameraRequested}
       highAccuracyMode={highAccuracyMode}

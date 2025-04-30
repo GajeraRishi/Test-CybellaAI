@@ -3,14 +3,31 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card } from '@/components/ui/card';
 import TeamSection from '@/components/TeamSection';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const About = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#1E90FF] to-[#87CEEB]">
       <Header />
       
       <main className="flex-1 container py-20 px-4">
         <div className="max-w-[800px] mx-auto space-y-12 mt-20">
+          {/* Back button */}
+          <div className="flex">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')} 
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="mr-2" />
+              Back to Home
+            </Button>
+          </div>
+
           <section className="text-center space-y-6">
             <h1 className="text-4xl md:text-5xl font-bold text-white">
               About Cybella
