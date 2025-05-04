@@ -94,6 +94,11 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  .text-2xs {
+    font-size: 0.65rem;
+    line-height: 0.95rem;
+  }
 }
 
 .audio-wave {

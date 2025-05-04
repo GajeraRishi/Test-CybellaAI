@@ -177,3 +177,4 @@ export function processEmotions(
     confidence: Math.min(0.98, highestScore * 1.5)
   };
 }
+

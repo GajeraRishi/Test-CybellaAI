@@ -15,47 +15,42 @@ export function useEmotionDetection({
   showDetectionVisuals = true,
 }: UseEmotionDetectionProps) {
   const isMobile = useIsMobile();
-  
-  // Process frames frequently but only consider detected emotions valid for 5 seconds
   const lastProcessTimeRef = useRef<number>(0);
-  // Keep processing interval relatively short for camera stability
-  // but use emotion history with 5-second window for final output
-  const PROCESS_INTERVAL_MS = isMobile ? 400 : 300; // Shorter intervals for camera stability
-  
-  // Flag to prevent concurrent detection runs
+  const PROCESS_INTERVAL_MS = isMobile ? 400 : 300;
   const isProcessingRef = useRef<boolean>(false);
 
+  // Emotion buffer to store recent results
+  const emotionBuffer: { emotion: Emotion; confidence: number }[] = [];
+
+  // Aggregate buffer for smoothing
+  const getSmoothedEmotion = () => {
+    if (emotionBuffer.length === 0) return null;
+    const emotionScores: Record<Emotion, number> = {} as any;
+    emotionBuffer.forEach(({ emotion, confidence }) => {
+      emotionScores[emotion] = (emotionScores[emotion] || 0) + confidence;
+    });
+    return Object.entries(emotionScores).reduce((a, b) => (a[1] > b[1] ? a : b))[0] as Emotion;
+  };
+
+  // Base detection
   const detectEmotion = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || isProcessingRef.current) return null;
-    
-    // Check if video is playing and has dimensions
-    if (videoRef.current.paused || videoRef.current.ended || 
-        videoRef.current.readyState < 2) {
+    if (videoRef.current.paused || videoRef.current.ended || videoRef.current.readyState < 2) {
       console.log("Video not ready for emotion detection", videoRef.current.readyState);
       return null;
     }
-    
-    // Set processing flag to prevent concurrent runs
+
     isProcessingRef.current = true;
-    
+
     try {
-      console.log("Attempting emotion detection...");
       const result = await detectFaceExpressions(
-        videoRef.current, 
-        canvasRef.current, 
+        videoRef.current,
+        canvasRef.current,
         showDetectionVisuals,
         isMobile
       );
-      
       isProcessingRef.current = false;
-      
-      if (result) {
-        console.log(`Emotion detected: ${result.emotion} (${result.confidence.toFixed(2)}) at ${new Date().toISOString()}`);
-        return result;
-      } else {
-        console.log("No emotion detected in this frame");
-        return null;
-      }
+      return result || null;
     } catch (error) {
       console.error('Error in emotion detection:', error);
       isProcessingRef.current = false;
@@ -63,9 +58,34 @@ export function useEmotionDetection({
     }
   }, [videoRef, canvasRef, showDetectionVisuals, isMobile]);
 
+  // Smoothed wrapper
+  const detectEmotionWithBuffer = useCallback(async () => {
+    const result = await detectEmotion();
+    if (result) {
+      emotionBuffer.push(result);
+      if (emotionBuffer.length > 5) emotionBuffer.shift();
+    }
+
+    const smoothed = getSmoothedEmotion();
+    if (smoothed) {
+      const avgConfidence =
+        emotionBuffer
+          .filter(e => e.emotion === smoothed)
+          .reduce((sum, e) => sum + e.confidence, 0) /
+        emotionBuffer.filter(e => e.emotion === smoothed).length;
+
+      return {
+        emotion: smoothed,
+        confidence: avgConfidence,
+      };
+    }
+
+    return result; // fallback to base if no buffer result
+  }, [detectEmotion]);
+
   return {
-    detectEmotion,
+    detectEmotion: detectEmotionWithBuffer,
     lastProcessTimeRef,
-    PROCESS_INTERVAL_MS
+    PROCESS_INTERVAL_MS,
   };
 }

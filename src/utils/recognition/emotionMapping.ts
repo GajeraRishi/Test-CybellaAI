@@ -112,10 +112,10 @@ export function mapFaceApiEmotionToAppEmotion(
     let adjustedScore = normalizedScore;
     if (emotion === 'neutral') adjustedScore *= 2.5;
     if (emotion === 'happy') adjustedScore *= 2.3;
-    if (emotion === 'angry') adjustedScore *= 2.1; // Reduced to avoid confusion with contempt
+    if (emotion === 'angry') adjustedScore *= 2.3; // Reduced to avoid confusion with contempt
     if (emotion === 'fearful') adjustedScore *= 3.0; // Increased for anxious detection
     if (emotion === 'disgusted') adjustedScore *= 2.2;
-    if (emotion === 'contemptuous') adjustedScore *= 2.8; // Increased to ensure detection
+    if (emotion === 'contemptuous') adjustedScore *= 2.3; // Increased to ensure detection
     
     if (adjustedScore > highestConfidence) {
       highestConfidence = adjustedScore;
@@ -180,3 +180,4 @@ export function simulateVoiceEmotionDetection(): { emotion: Emotion; confidence:
     confidence: randomConfidence
   };
 }
+

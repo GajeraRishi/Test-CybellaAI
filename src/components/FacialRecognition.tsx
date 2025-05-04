@@ -8,7 +8,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Emotion } from '@/components/EmotionDisplay';
 
 interface FacialRecognitionProps {
-  onEmotionDetected?: (emotion: Emotion) => void;
+  onEmotionDetected?: (emotion: Emotion, confidence: number) => void;
   isActive: boolean;
   connectionIssue?: boolean;
 }
@@ -21,6 +21,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { stableEmotion, setEmotionData } = useEmotion();
+  const [currentConfidence, setCurrentConfidence] = useState(0);
   const [cameraRequested, setCameraRequested] = useState(false);
   const { toast } = useToast();
   const [highAccuracyMode, setHighAccuracyMode] = useState(true);
@@ -65,22 +66,47 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
   }, [toast, isMobile]);
 
   // Handle detected emotions and pass to parent component
-  const handleEmotionDetected = (emotion: Emotion) => {
+  // const handleEmotionDetected = (emotion: Emotion, confidence: number) => {
+  //   if (isActive) {
+  //     setEmotionData(emotion, confidence);
+  //     setCurrentConfidence(confidence);
+  //     if (onEmotionDetected) {
+  //       onEmotionDetected(emotion, confidence);
+  //     }
+  //   }
+  // };
+  const logEmotionToTerminal = (emotion: string) => {
+    fetch("http://localhost:3001/log-emotion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        emotion,
+        timestamp: new Date().toISOString()
+      })
+    }).catch((err) => console.error("Logging error:", err));
+  };
+  
+  const handleEmotionDetected = (emotion: Emotion, confidence: number) => {
     if (isActive) {
-      setEmotionData(emotion, 0);
+      setEmotionData(emotion, confidence);
+      setCurrentConfidence(confidence);
+  
+      // ✅ Log to terminal server
+      logEmotionToTerminal(emotion);
+  
       if (onEmotionDetected) {
-        onEmotionDetected(emotion);
+        onEmotionDetected(emotion, confidence);
       }
     }
   };
-
+  
   // Use the facial recognition hook
   const { permission, error, modelsLoaded, connectionIssue: detectedConnectionIssue, requestCameraAccess } = useFacialRecognition({
     videoRef,
     canvasRef,
     isActive,
     cameraRequested,
-    onEmotionDetected: (emotion) => handleEmotionDetected(emotion),
+    onEmotionDetected: handleEmotionDetected,
     sessionId: sessionIdRef.current
   });
 
@@ -124,6 +150,7 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
       connectionIssue={hasConnectionIssue}
       isActive={isActive}
       emotion={isActive ? stableEmotion : null}
+      confidence={currentConfidence}
       requestCameraAccess={handleRequestCameraAccess}
       cameraRequested={cameraRequested}
       highAccuracyMode={highAccuracyMode}

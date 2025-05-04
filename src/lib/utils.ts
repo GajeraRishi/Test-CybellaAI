@@ -1,6 +1,10 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+// src/lib/utils.ts
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+/**
+ * Conditionally join classNames.
+ * Common in Tailwind/React projects.
+ */
+export function cn(...inputs: (string | undefined | null | false)[]) {
+    return inputs.filter(Boolean).join(' ');
+  }
+  

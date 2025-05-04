@@ -9,12 +9,14 @@ import { useVoiceSession } from '@/hooks/voice/useVoiceSession';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useConnectionStatus } from '@/hooks/facial-recognition/useConnectionStatus';
+import { Emotion } from '@/components/EmotionDisplay';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * Voice Interface Component (no translations, no multi-language)
  */
 interface VoiceInterfaceProps {
-  onVoiceEmotionDetected?: (emotion: string) => void;
+  onVoiceEmotionDetected?: (emotion: Emotion, confidence: number) => void;
   onSessionStart?: () => void;
   onSessionEnd?: () => void;
   isOnline?: boolean;
@@ -34,6 +36,8 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
     externalConnectionIssue: !isOnline || connectionQuality === 'poor'
   });
 
+  const { isAuthenticated, user } = useAuth(); // User auth data
+
   // Use the external session state if provided, otherwise use internal state
   const isControlledComponent = externalSessionActive !== undefined;
 
@@ -41,7 +45,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
     onSessionStart,
     onSessionEnd
   });
-  
+
   // Determine the actual session state
   const actualSessionActive = isControlledComponent ? externalSessionActive : session.sessionActive;
 
@@ -66,10 +70,10 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
   // Initialize AI response when session starts
   useEffect(() => {
     if (actualSessionActive) {
-      voice.setAiResponse("Hi there! I'm Cybella. How are you feeling today? I'm here to chat and support you through whatever's on your mind.");
+      const nameOrEmail = user?.name || user?.email || "there";
+      voice.setAiResponse(`Hi ${nameOrEmail}! I'm Cybella. How are you feeling today? I'm here to chat and support you through whatever's on your mind.`);
       voice.setShouldPlayVoice(true);
     } else {
-      // Clear voice state when session ends
       voice.setAiResponse("");
       if (voice.setTranscription) {
         voice.setTranscription("");
@@ -82,17 +86,18 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
         voice.stopListening();
       }
     }
-  }, [actualSessionActive, voice]);
+  }, [actualSessionActive, voice, user]);
 
   // Scroll to bottom when messages update
   useEffect(() => {
     scrollToBottom();
   }, [voice.aiResponse, voice.transcription]);
 
-  const contentHeight = isMobile ? "h-[250px]" : "h-[300px]";
+  // Adjusted height for better mobile experience
+  const contentHeight = isMobile ? "h-[220px]" : "h-[300px]";
 
   return (
-    <Card className="p-3 md:p-4">
+    <Card className="p-2 md:p-4">
       <SessionControls
         sessionActive={actualSessionActive}
         toggleSession={isControlledComponent ? onSessionStart || (() => {}) : session.toggleSession}
@@ -100,8 +105,8 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
         isOnline={isOnline}
       />
 
-      <div className={`overflow-y-auto ${contentHeight} pr-2`}>
-        <div className="space-y-4">
+      <div className={`overflow-y-auto ${contentHeight} pr-1 md:pr-2`}>
+        <div className="space-y-3 md:space-y-4">
           <AIResponseDisplay
             processingInput={voice.processingInput}
             aiResponse={voice.aiResponse}
@@ -119,7 +124,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t">
+      <div className="mt-2 pt-2 md:mt-3 md:pt-3 border-t">
         <VoiceControls
           isListening={voice.isListening}
           audioData={voice.audioData}

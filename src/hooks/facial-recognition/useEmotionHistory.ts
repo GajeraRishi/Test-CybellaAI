@@ -113,7 +113,7 @@ export function useEmotionHistory() {
         if (avgConfidence > confidenceThreshold || dominantEmotion === 'happy') {
           return { 
             emotion: dominantEmotion, 
-            confidence: Math.min(0.95, avgConfidence * 1.2)
+            confidence: Math.min(0.50, avgConfidence * 1.2)
           };
         }
         return lastDetectedEmotion;
