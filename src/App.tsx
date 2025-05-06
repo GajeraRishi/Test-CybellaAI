@@ -12,6 +12,7 @@ import About from "./pages/About";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile"
 
 // Create a client for React Query
 const queryClient = new QueryClient();
@@ -44,10 +45,13 @@ const App = () => (
                   <Chat />
                 </ProtectedRoute>
               } />
-              <Route path="/face" element={<Index />} />
-              <Route path="/emotions" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </TooltipProvider>

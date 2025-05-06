@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -7,17 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+  FormControl
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { LogIn } from "lucide-react";
+import { LogIn, Eye, EyeOff, UserPlus } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
+import FormContainer from "@/components/auth/FormContainer";
+import { FormFieldWithFeedback } from "@/components/auth/FormFieldWithFeedback";
 
 // Define form validation schema
 const loginSchema = z.object({
@@ -30,6 +28,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const Login = () => {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   
   // If user is already authenticated, redirect to home page
   React.useEffect(() => {
@@ -69,48 +68,47 @@ const Login = () => {
       <Header />
       
       <main className="flex-1 container py-16 px-4 mt-16">
-        <div className="max-w-md mx-auto bg-white/20 backdrop-blur-md p-8 rounded-xl shadow-lg border border-white/30">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-white/80">Sign in to continue to Cybella</p>
-          </div>
-          
+        <FormContainer 
+          title="Welcome Back" 
+          subtitle="Sign in to continue to Cybella"
+        >
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
+              <FormFieldWithFeedback
                 control={form.control}
                 name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Email</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter your email" 
-                        className="bg-white/30 text-white placeholder:text-white/60 border-white/30"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                label="Email"
+                rules={{ pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }}
+                renderInput={(field) => (
+                  <Input 
+                    placeholder="Enter your email" 
+                    className="bg-white/30 text-white placeholder:text-white/60 border-white/30 pr-10"
+                    {...field} 
+                  />
                 )}
               />
               
-              <FormField
+              <FormFieldWithFeedback
                 control={form.control}
                 name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-white">Password</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="Enter your password" 
-                        className="bg-white/30 text-white placeholder:text-white/60 border-white/30"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                label="Password"
+                rules={{ minLength: 6 }}
+                renderInput={(field) => (
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="Enter your password" 
+                      className="bg-white/30 text-white placeholder:text-white/60 border-white/30 pr-10"
+                      {...field} 
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 )}
               />
               
@@ -133,8 +131,9 @@ const Login = () => {
               <div className="text-center mt-6">
                 <p className="text-white">
                   Don't have an account?{" "}
-                  <Link to="/register" className="text-white font-medium hover:underline">
-                    Sign up
+                  <Link to="/register" className="text-white font-medium hover:underline flex items-center justify-center mt-2">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Sign up now
                   </Link>
                 </p>
               </div>
@@ -149,7 +148,7 @@ const Login = () => {
               </div>
             </form>
           </Form>
-        </div>
+        </FormContainer>
       </main>
       
       <Footer />

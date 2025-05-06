@@ -67,11 +67,10 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
     }
   }, [isOnline, session, isControlledComponent]);
 
-  // Initialize AI response when session starts
   useEffect(() => {
     if (actualSessionActive) {
-      const nameOrEmail = user?.name || user?.email || "there";
-      voice.setAiResponse(`Hi ${nameOrEmail}! I'm Cybella. How are you feeling today? I'm here to chat and support you through whatever's on your mind.`);
+      const aiName = user?.aiName || "Cybella";
+      voice.setAiResponse(`Hi, I'm ${aiName}, Thanks for creating me. I’m so excited to assist you?`);
       voice.setShouldPlayVoice(true);
     } else {
       voice.setAiResponse("");
@@ -87,7 +86,7 @@ const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
       }
     }
   }, [actualSessionActive, voice, user]);
-
+  
   // Scroll to bottom when messages update
   useEffect(() => {
     scrollToBottom();

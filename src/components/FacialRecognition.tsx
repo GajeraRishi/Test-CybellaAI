@@ -65,41 +65,59 @@ const FacialRecognitionInner: React.FC<FacialRecognitionProps> = ({
       });
   }, [toast, isMobile]);
 
-  // Handle detected emotions and pass to parent component
-  // const handleEmotionDetected = (emotion: Emotion, confidence: number) => {
-  //   if (isActive) {
-  //     setEmotionData(emotion, confidence);
-  //     setCurrentConfidence(confidence);
-  //     if (onEmotionDetected) {
-  //       onEmotionDetected(emotion, confidence);
-  //     }
-  //   }
-  // };
-  const logEmotionToTerminal = (emotion: string) => {
-    fetch("http://localhost:3001/log-emotion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        emotion,
-        timestamp: new Date().toISOString()
-      })
-    }).catch((err) => console.error("Logging error:", err));
+  // Optional logging of emotion data to server - with error handling
+  const logEmotionToTerminal = async (emotion: Emotion, confidence: number) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      
+      // Skip logging if no API URL is configured
+      if (!apiUrl || !isActive) return;
+      
+      // Create the endpoint URL - add '/log-emotion' to the API URL
+      const endpoint = `${apiUrl}/log-emotion`;
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          emotion,
+          confidence,
+          sessionId: sessionIdRef.current,
+          source: 'facial'
+        }),
+      });
+
+      if (!response.ok) {
+        // Log error but don't throw - this is non-critical functionality
+        console.log(`Emotion logging received status ${response.status}`);
+      }
+    } catch (error) {
+      // Silently handle errors to prevent app disruption
+      // This is an optional feature and shouldn't crash the app
+      console.log("Emotion logging unavailable");
+    }
   };
-  
+
+  // Handle detected emotions and pass to parent component
   const handleEmotionDetected = (emotion: Emotion, confidence: number) => {
     if (isActive) {
       setEmotionData(emotion, confidence);
       setCurrentConfidence(confidence);
-  
-      // ✅ Log to terminal server
-      logEmotionToTerminal(emotion);
-  
+      
+      // Try to log emotion, but don't let it affect the app if it fails
+      logEmotionToTerminal(emotion, confidence).catch(() => {
+        // Intentionally empty - we don't want to propagate errors from logging
+      });
+      
       if (onEmotionDetected) {
         onEmotionDetected(emotion, confidence);
       }
     }
   };
-  
+
   // Use the facial recognition hook
   const { permission, error, modelsLoaded, connectionIssue: detectedConnectionIssue, requestCameraAccess } = useFacialRecognition({
     videoRef,
